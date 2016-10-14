@@ -37,12 +37,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
 
   // [START openurl]
   func application(application: UIApplication,
-    openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+    openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
       return GIDSignIn.sharedInstance().handleURL(url,
           sourceApplication: sourceApplication,
           annotation: annotation)
   }
   // [END openurl]
+
+  @available(iOS 9.0, *)
+  func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+    return GIDSignIn.sharedInstance().handleURL(url,
+      sourceApplication: options[UIApplicationOpenURLOptionsSourceApplicationKey] as! String?,
+      annotation: options[UIApplicationOpenURLOptionsAnnotationKey])
+  }
 
   // [START signin_handler]
   func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!,
@@ -51,16 +58,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Perform any operations on signed in user here.
         let userId = user.userID                  // For client-side use only!
         let idToken = user.authentication.idToken // Safe to send to the server
-        let name = user.profile.name
+        let fullName = user.profile.name
+        let givenName = user.profile.givenName
+        let familyName = user.profile.familyName
         let email = user.profile.email
         // [START_EXCLUDE]
         NSNotificationCenter.defaultCenter().postNotificationName(
             "ToggleAuthUINotification",
             object: nil,
-            userInfo: ["statusText": "Signed in user:\n\(name)"])
+            userInfo: ["statusText": "Signed in user:\n\(fullName)"])
         // [END_EXCLUDE]
       } else {
-        println("\(error.localizedDescription)")
+        print("\(error.localizedDescription)")
         // [START_EXCLUDE silent]
         NSNotificationCenter.defaultCenter().postNotificationName(
           "ToggleAuthUINotification", object: nil, userInfo: nil)
