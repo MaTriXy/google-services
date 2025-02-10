@@ -3,7 +3,7 @@ package com.google.samples.quickstart.signin;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +23,16 @@ public class ChooserActivity extends AppCompatActivity implements AdapterView.On
             SignInActivity.class,
             SignInActivityWithDrive.class,
             IdTokenActivity.class,
-            ServerAuthCodeActivity.class
+            ServerAuthCodeActivity.class,
+            RestApiActivity.class,
     };
 
     private static final int[] DESCRIPTION_IDS = new int[] {
             R.string.desc_sign_in_activity,
             R.string.desc_sign_in_activity_scopes,
             R.string.desc_id_token_activity,
-            R.string.desc_auth_code_activity
+            R.string.desc_auth_code_activity,
+            R.string.desc_rest_activity,
     };
 
     @Override
@@ -39,7 +41,7 @@ public class ChooserActivity extends AppCompatActivity implements AdapterView.On
         setContentView(R.layout.activity_chooser);
 
         // Set up ListView and Adapter
-        ListView listView = (ListView) findViewById(R.id.list_view);
+        ListView listView = findViewById(R.id.list_view);
 
         MyArrayAdapter adapter = new MyArrayAdapter(this, android.R.layout.simple_list_item_2, CLASSES);
         adapter.setDescriptionIds(DESCRIPTION_IDS);

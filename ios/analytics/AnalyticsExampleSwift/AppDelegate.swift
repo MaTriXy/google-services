@@ -21,25 +21,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
 
-  func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
     // [START tracker_swift]
-    // Configure tracker from GoogleService-Info.plist.
-    var configureError:NSError?
-    GGLContext.sharedInstance().configureWithError(&configureError)
-    assert(configureError == nil, "Error configuring Google services: \(configureError)")
+    guard let gai = GAI.sharedInstance() else {
+      assert(false, "Google Analytics not configured correctly")
+    }
+    gai.tracker(withTrackingId: "YOUR_TRACKING_ID")
+    // Optional: automatically report uncaught exceptions.
+    gai.trackUncaughtExceptions = true
 
-    // Optional: configure GAI options.
-    let gai = GAI.sharedInstance()
-    gai.trackUncaughtExceptions = true  // report uncaught exceptions
-    gai.logger.logLevel = GAILogLevel.Verbose  // remove before app release
+    // Optional: set Logger to VERBOSE for debug information.
+    // Remove before app release.
+    gai.logger.logLevel = .verbose;
     // [END tracker_swift]
 
     // Set a white background so that patterns are showcased.
-    window?.backgroundColor = UIColor.whiteColor()
+    window?.backgroundColor = UIColor.white
 
     return true
   }
 
 }
-

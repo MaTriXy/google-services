@@ -14,81 +14,81 @@
 //  limitations under the License.
 //
 import UIKit
+import GoogleSignIn
 
 @UIApplicationMain
 // [START appdelegate_interfaces]
 class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
-// [END appdelegate_interfaces]
+
+  // [END appdelegate_interfaces]
   var window: UIWindow?
 
   // [START didfinishlaunching]
-  func application(application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-      // Initialize sign-in
-      var configureError: NSError?
-      GGLContext.sharedInstance().configureWithError(&configureError)
-      assert(configureError == nil, "Error configuring Google services: \(configureError)")
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Initialize sign-in
+    GIDSignIn.sharedInstance().clientID = "YOUR_CLIENT_ID"
+    GIDSignIn.sharedInstance().delegate = self
 
-      GIDSignIn.sharedInstance().delegate = self
-
-      return true
+    return true
   }
   // [END didfinishlaunching]
 
   // [START openurl]
-  func application(application: UIApplication,
-    openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
-      return GIDSignIn.sharedInstance().handleURL(url,
-          sourceApplication: sourceApplication,
-          annotation: annotation)
+  func application(_ application: UIApplication,
+                   open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+    return GIDSignIn.sharedInstance().handle(url)
   }
   // [END openurl]
 
+  // [START openurl_new]
   @available(iOS 9.0, *)
-  func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
-    return GIDSignIn.sharedInstance().handleURL(url,
-      sourceApplication: options[UIApplicationOpenURLOptionsSourceApplicationKey] as! String?,
-      annotation: options[UIApplicationOpenURLOptionsAnnotationKey])
+  func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
+    return GIDSignIn.sharedInstance().handle(url)
   }
+  // [END openurl_new]
 
   // [START signin_handler]
-  func signIn(signIn: GIDSignIn!, didSignInForUser user: GIDGoogleUser!,
-    withError error: NSError!) {
-      if (error == nil) {
-        // Perform any operations on signed in user here.
-        let userId = user.userID                  // For client-side use only!
-        let idToken = user.authentication.idToken // Safe to send to the server
-        let fullName = user.profile.name
-        let givenName = user.profile.givenName
-        let familyName = user.profile.familyName
-        let email = user.profile.email
-        // [START_EXCLUDE]
-        NSNotificationCenter.defaultCenter().postNotificationName(
-            "ToggleAuthUINotification",
-            object: nil,
-            userInfo: ["statusText": "Signed in user:\n\(fullName)"])
-        // [END_EXCLUDE]
+  func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!,
+            withError error: Error!) {
+    if let error = error {
+      if (error as NSError).code == GIDSignInErrorCode.hasNoAuthInKeychain.rawValue {
+        print("The user has not signed in before or they have since signed out.")
       } else {
         print("\(error.localizedDescription)")
-        // [START_EXCLUDE silent]
-        NSNotificationCenter.defaultCenter().postNotificationName(
-          "ToggleAuthUINotification", object: nil, userInfo: nil)
-        // [END_EXCLUDE]
       }
+      // [START_EXCLUDE silent]
+      NotificationCenter.default.post(
+        name: Notification.Name(rawValue: "ToggleAuthUINotification"), object: nil, userInfo: nil)
+      // [END_EXCLUDE]
+      return
+    }
+    // Perform any operations on signed in user here.
+    let userId = user.userID                  // For client-side use only!
+    let idToken = user.authentication.idToken // Safe to send to the server
+    let fullName = user.profile.name
+    let givenName = user.profile.givenName
+    let familyName = user.profile.familyName
+    let email = user.profile.email
+    // [START_EXCLUDE]
+    NotificationCenter.default.post(
+      name: Notification.Name(rawValue: "ToggleAuthUINotification"),
+      object: nil,
+      userInfo: ["statusText": "Signed in user:\n\(fullName!)"])
+    // [END_EXCLUDE]
   }
   // [END signin_handler]
 
   // [START disconnect_handler]
-  func signIn(signIn: GIDSignIn!, didDisconnectWithUser user:GIDGoogleUser!,
-    withError error: NSError!) {
-      // Perform any operations when the user disconnects from app here.
-      // [START_EXCLUDE]
-      NSNotificationCenter.defaultCenter().postNotificationName(
-          "ToggleAuthUINotification",
-          object: nil,
-          userInfo: ["statusText": "User has disconnected."])
-      // [END_EXCLUDE]
+  func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!,
+            withError error: Error!) {
+    // Perform any operations when the user disconnects from app here.
+    // [START_EXCLUDE]
+    NotificationCenter.default.post(
+      name: Notification.Name(rawValue: "ToggleAuthUINotification"),
+      object: nil,
+      userInfo: ["statusText": "User has disconnected."])
+    // [END_EXCLUDE]
   }
   // [END disconnect_handler]
-
 }

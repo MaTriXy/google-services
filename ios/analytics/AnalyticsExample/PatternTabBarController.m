@@ -16,13 +16,14 @@
 
 #import "PatternTabBarController.h"
 
-#import <Google/Analytics.h>
+#import <GoogleAnalytics/GAI.h>
+#import <GoogleAnalytics/GAIDictionaryBuilder.h>
 
 @implementation PatternTabBarController
 
 - (void)didTapShare:(id)sender {
   // [START custom_event_objc]
-  id<GAITracker> tracker = [[GAI sharedInstance] defaultTracker];
+  id<GAITracker> tracker = [GAI sharedInstance].defaultTracker;
   NSMutableDictionary *event =
       [[GAIDictionaryBuilder createEventWithCategory:@"Action"
                                               action:@"Share"
